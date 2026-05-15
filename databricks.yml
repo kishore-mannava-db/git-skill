@@ -1,13 +1,13 @@
 bundle:
-  name: ey-git-skill
+  name: git-skill
 
 variables:
   skills_repo_url:
-    default: https://github.com/kishore-mannava-db/ey-git-skill.git
+    default: https://github.com/kishore-mannava-db/git-skill.git
 
 targets:
   dev:
     workspace:
       host: https://adb-2018611342634356.16.azuredatabricks.net
     variables:
-      skills_repo_url: https://github.com/kishore-mannava-db/ey-git-skill.git
+      skills_repo_url: https://github.com/kishore-mannava-db/git-skill.git
