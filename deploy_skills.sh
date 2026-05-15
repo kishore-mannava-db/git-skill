@@ -1,11 +1,12 @@
 #!/bin/bash
-# Deploy skills from this repo to Databricks workspace .assistant/skills/ folder
+# Deploy skills as a Git folder inside .assistant/skills/ in Databricks workspace
+# This allows editing skills in the workspace and committing back to GitHub.
+#
 # Usage: ./deploy_skills.sh --profile my
 
 set -e
 
 PROFILE="DEFAULT"
-SKILLS_DIR="skills"
 
 while [[ $# -gt 0 ]]; do
   case $1 in
@@ -21,38 +22,45 @@ if [ -z "$USER_NAME" ]; then
   exit 1
 fi
 
+# Get repo URL from git remote
+REPO_URL=$(git remote get-url origin 2>/dev/null || echo "")
+if [ -z "$REPO_URL" ]; then
+  echo "Error: Not a git repo or no remote 'origin' configured."
+  exit 1
+fi
+# Normalize SSH URL to HTTPS
+if [[ "$REPO_URL" == git@* ]]; then
+  REPO_URL=$(echo "$REPO_URL" | sed 's|git@github.com:|https://github.com/|')
+fi
+REPO_NAME=$(basename "$REPO_URL" .git)
+
 DEST_PATH="/Users/$USER_NAME/.assistant/skills"
-echo "Deploying skills to: $DEST_PATH (profile: $PROFILE)"
+FOLDER_PATH="$DEST_PATH/$REPO_NAME"
 
-# Create .assistant/skills directory
-databricks workspace mkdirs "$DEST_PATH" --profile "$PROFILE" 2>/dev/null || true
+echo "Deploying Git folder to: $FOLDER_PATH"
+echo "  Remote: $REPO_URL"
+echo "  Profile: $PROFILE"
 
-# Upload each skill folder
-for skill_dir in "$SKILLS_DIR"/*/; do
-  [ -d "$skill_dir" ] || continue
-  skill_name=$(basename "$skill_dir")
+# Check if Git folder already exists
+EXISTING=$(databricks repos list --profile "$PROFILE" --output json 2>/dev/null | python3 -c "
+import sys, json
+for r in json.load(sys.stdin):
+    if r.get('path','') == '$FOLDER_PATH':
+        print(r['id'])
+        break
+" 2>/dev/null || echo "")
 
-  if [ ! -f "$skill_dir/SKILL.md" ]; then
-    echo "  Skipping $skill_name (no SKILL.md)"
-    continue
-  fi
-
-  echo "  Uploading $skill_name..."
-  databricks workspace mkdirs "$DEST_PATH/$skill_name" --profile "$PROFILE" 2>/dev/null || true
-
-  find "$skill_dir" -type f \( -name "*.md" -o -name "*.py" -o -name "*.sql" -o -name "*.yaml" -o -name "*.yml" \) | while read -r file; do
-    rel_path="${file#$skill_dir}"
-    dest="$DEST_PATH/$skill_name/$rel_path"
-    parent_dir=$(dirname "$dest")
-    if [ "$parent_dir" != "$DEST_PATH/$skill_name" ]; then
-      databricks workspace mkdirs "$parent_dir" --profile "$PROFILE" 2>/dev/null || true
-    fi
-    databricks workspace import "$dest" --file "$file" --profile "$PROFILE" --format AUTO --overwrite 2>/dev/null || true
-  done
-done
+if [ -n "$EXISTING" ]; then
+  echo "  Git folder already exists (id: $EXISTING). Pulling latest..."
+  databricks repos update "$EXISTING" --branch main --profile "$PROFILE" 2>/dev/null
+else
+  echo "  Creating Git folder..."
+  databricks workspace mkdirs "$DEST_PATH" --profile "$PROFILE" 2>/dev/null || true
+  databricks repos create "$REPO_URL" gitHub --path "$FOLDER_PATH" --profile "$PROFILE"
+fi
 
 echo ""
-echo "Deployed skills:"
+echo "Deployed:"
 databricks workspace list "$DEST_PATH" --profile "$PROFILE" 2>/dev/null
 echo ""
-echo "Done! Skills are now available in Genie Code."
+echo "Done! Edit skills in the workspace and commit back to GitHub."

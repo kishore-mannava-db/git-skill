@@ -1,31 +1,29 @@
-# EY Git Skill - Sample Genie Code Skills
+# EY Git Skill - Genie Code Skills
 
-This repository contains sample skills for Databricks Genie Code (AI Assistant).
-Skills are deployed to the workspace `.assistant/skills/` folder to extend the Genie Code agent with custom capabilities.
+Custom skills for Databricks Genie Code, managed via Git. Edit skills in the Databricks workspace and commit back to GitHub.
 
-## Skills Included
+## Skills
 
 | Skill | Description |
 |-------|-------------|
-| `ey-data-quality` | Data quality checks and validation patterns for EY audit workflows |
-| `ey-sql-helper` | Common SQL patterns for financial data analysis and reporting |
+| `ey-data-quality` | Data quality checks and validation patterns for audit workflows |
+| `ey-sql-helper` | SQL patterns for financial data analysis and reporting |
 
 ## Deployment
 
-### Deploy to Databricks Workspace
+### Manual (CLI)
 
 ```bash
-# Clone this repo
-git clone <repo-url>
-cd ey-git-skill
-
-# Deploy skills to your workspace .assistant/skills/ folder
 ./deploy_skills.sh --profile my
 ```
 
-### Manual Deployment
+### Automated (GitHub Actions)
 
-```bash
-# Upload a single skill
-databricks workspace import-dir skills/ey-data-quality /Users/<you>/.assistant/skills/ey-data-quality --profile my --overwrite
-```
+Push to `main` triggers automatic deployment. Requires these repository secrets:
+
+- `DATABRICKS_HOST` — e.g. `https://adb-xxxx.xx.azuredatabricks.net`
+- `DATABRICKS_TOKEN` — Databricks personal access token
+
+### Configuration
+
+Workspace settings are in `databricks.yml`.
