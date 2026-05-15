@@ -1,6 +1,6 @@
-# Git Skill - Genie Code Skills
+# Custom skills for Databricks Genie Code, deployed as a Git-linked folder.
+Sample repo to showcase how to use gitbub as source of truth for custom skills deployment in genie code.
 
-Custom skills for Databricks Genie Code, deployed as a Git-linked folder.
 
 ## Skills
 
