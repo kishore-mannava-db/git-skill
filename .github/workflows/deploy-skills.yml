@@ -17,8 +17,27 @@ jobs:
       - name: Install Databricks CLI
         uses: databricks/setup-cli@main
 
-      - name: Deploy bundle
-        run: databricks bundle deploy --target dev
+      - name: Pull latest into workspace Git folder
         env:
           DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
           DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
+        run: |
+          USER_NAME=$(databricks current-user me --output json | python3 -c "import sys,json; print(json.load(sys.stdin)['userName'])")
+          FOLDER_PATH="/Users/$USER_NAME/.assistant/skills/${{ github.event.repository.name }}"
+
+          REPO_ID=$(databricks repos list --output json | python3 -c "
+          import sys, json
+          for r in json.load(sys.stdin):
+              if r.get('path','') == '$FOLDER_PATH':
+                  print(r['id'])
+                  break
+          ")
+
+          if [ -n "$REPO_ID" ]; then
+            echo "Updating Git folder (id: $REPO_ID)..."
+            databricks repos update "$REPO_ID" --branch main
+          else
+            echo "Creating Git folder at $FOLDER_PATH..."
+            databricks workspace mkdirs "/Users/$USER_NAME/.assistant/skills"
+            databricks repos create "${{ github.server_url }}/${{ github.repository }}.git" gitHub --path "$FOLDER_PATH"
+          fi
