@@ -1,9 +1,9 @@
 ---
-name: ey-data-quality
-description: "Data quality validation patterns for financial and audit data. Use when checking data completeness, accuracy, consistency, or when building DQ rules for EY audit workflows."
+name: data-quality
+description: "Data quality validation patterns for financial and audit data. Use when checking data completeness, accuracy, consistency, or when building DQ rules for audit workflows."
 ---
 
-# EY Data Quality Skill
+# Data Quality Skill
 
 ## Overview
 

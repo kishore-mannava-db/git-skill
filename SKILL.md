@@ -9,8 +9,8 @@ This skill provides data quality validation and financial SQL patterns for audit
 
 ## Sub-skills
 
-- [Data Quality Patterns](ey-data-quality/SKILL.md) — completeness, duplicates, referential integrity, outliers, freshness
-- [SQL Helper Patterns](ey-sql-helper/SKILL.md) — trial balance, period comparison, aging, reconciliation, running balance
+- [Data Quality Patterns](data-quality/SKILL.md) — completeness, duplicates, referential integrity, outliers, freshness
+- [SQL Helper Patterns](sql-helper/SKILL.md) — trial balance, period comparison, aging, reconciliation, running balance
 
 ## Data Quality Patterns
 

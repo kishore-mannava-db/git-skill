@@ -1,9 +1,9 @@
 ---
-name: ey-sql-helper
+name: sql-helper
 description: "Common SQL patterns for financial data analysis and reporting. Use when building financial reports, performing reconciliation, calculating KPIs, or analyzing ledger data."
 ---
 
-# EY SQL Helper Skill
+# SQL Helper Skill
 
 ## Overview
 
